@@ -75,7 +75,7 @@ export default function AdminLoginPage() {
               <label className="text-xs font-semibold text-gray-700 block">এডমিন ইমেইল (Email)</label>
               <Input
                 type="text"
-                placeholder="rootzofficialbd.com"
+                placeholder=" gmail.com"
                 value={email}
                 onValueChange={setEmail}
                 required
