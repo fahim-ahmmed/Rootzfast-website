@@ -1,51 +1,26 @@
-import CredentialsProvider from "next-auth/providers/credentials";
-import { connectDB } from "@/lib/db";
-import User from "@/models/User";
+import { betterAuth } from "better-auth";
+import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { MongoClient } from "mongodb";
 
-export const authOptions = {
-  providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        await connectDB();
-        
-        const user = await User.findOne({ email: credentials.email });
-        if (!user) {
-          throw new Error("No user found with this email");
-        }
+const client = new MongoClient(process.env.MONGODB_URI);
+const db = client.db();
 
-        // Add password verification here (e.g., bcrypt.compare)
-        return {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role || "customer",
-        };
+export const auth = betterAuth({
+  database: mongodbAdapter(db),
+  emailAndPassword: {
+    enabled: true,
+  },
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "customer",
+        required: false,
       },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-        token.id = user.id;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.role = token.role;
-        session.user.id = token.id;
-      }
-      return session;
     },
   },
-  pages: {
-    signIn: "/login",
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day
   },
-  secret: process.env.NEXTAUTH_SECRET,
-};
+});

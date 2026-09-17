@@ -1,13 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { Navbar as NextNavbar, NavbarBrand, NavbarContent, NavbarItem, Button, Badge, useDisclosure } from "@heroui/react";
-import { ShoppingBag, Heart, User, Search } from "lucide-react";
+import { 
+  Navbar as NextNavbar, 
+  NavbarBrand, 
+  NavbarContent, 
+  NavbarItem, 
+  Button, 
+  Badge, 
+  Dropdown, 
+  DropdownTrigger, 
+  DropdownMenu, 
+  DropdownItem, 
+  Avatar, 
+  useDisclosure 
+} from "@heroui/react";
+import { ShoppingBag, Heart, User, Search, LogOut, ShieldAlert } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useSession, signOut } from "@/lib/auth-client";
 import SearchModal from "./SearchModal";
 
 export default function Navbar() {
   const { cartCount } = useCart();
+  const { data: session, isPending } = useSession();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   return (
@@ -38,11 +53,51 @@ export default function Navbar() {
           <Button isIconOnly variant="light" className="text-charcoal" onClick={onOpen}>
             <Search size={20} />
           </Button>
-          <Link href="/account">
-            <Button isIconOnly variant="light" className="text-charcoal">
-              <User size={20} />
-            </Button>
-          </Link>
+
+          {/* User Auth Profile Menu */}
+          {session ? (
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <Avatar
+                  name={session.user.name}
+                  size="sm"
+                  className="cursor-pointer bg-forest text-white"
+                />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Profile Actions" variant="flat">
+                <DropdownItem key="profile" className="h-14 gap-2">
+                  <p className="font-semibold text-xs text-gray-500">Signed in as</p>
+                  <p className="font-bold text-charcoal">{session.user.email}</p>
+                </DropdownItem>
+                <DropdownItem key="account" href="/account" startContent={<User size={16} />}>
+                  My Profile
+                </DropdownItem>
+
+                {/* Show Admin Panel link if role is admin */}
+                {session.user.role === "admin" && (
+                  <DropdownItem key="admin" href="/admin/dashboard" className="text-forest font-semibold" startContent={<ShieldAlert size={16} />}>
+                    Admin Panel
+                  </DropdownItem>
+                )}
+
+                <DropdownItem 
+                  key="logout" 
+                  color="danger" 
+                  startContent={<LogOut size={16} />} 
+                  onClick={() => signOut()}
+                >
+                  Log Out
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          ) : (
+            <Link href="/login">
+              <Button isIconOnly variant="light" className="text-charcoal">
+                <User size={20} />
+              </Button>
+            </Link>
+          )}
+
           <Badge content={cartCount} color="danger" shape="circle" size="sm" isInvisible={cartCount === 0}>
             <Link href="/cart">
               <Button isIconOnly variant="light" className="text-charcoal">
@@ -53,7 +108,6 @@ export default function Navbar() {
         </NavbarContent>
       </NextNavbar>
 
-      {/* Instant Search Drawer */}
       <SearchModal isOpen={isOpen} onOpenChange={onOpenChange} onClose={onClose} />
     </>
   );
