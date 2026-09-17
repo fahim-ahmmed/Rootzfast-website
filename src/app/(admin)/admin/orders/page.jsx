@@ -34,7 +34,7 @@ export default function AdminOrdersPage() {
       setOrders(data.orders || []);
     } catch (err) {
       console.error(err);
-    } fontally {
+    } finally {
       setLoading(false);
     }
   };

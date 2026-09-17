@@ -8,14 +8,28 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
 
-  // LocalStorage Sync
+  // LocalStorage থেকে আগের কার্ট ডাটা লোড করা
   useEffect(() => {
     const savedCart = localStorage.getItem("rootz_cart");
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart));
+      } catch (err) {
+        console.error("Cart loading error:", err);
+      }
+    }
+
     const savedWishlist = localStorage.getItem("rootz_wishlist");
-    if (savedCart) setCart(JSON.parse(savedCart));
-    if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+    if (savedWishlist) {
+      try {
+        setWishlist(JSON.parse(savedWishlist));
+      } catch (err) {
+        console.error("Wishlist loading error:", err);
+      }
+    }
   }, []);
 
+  // কার্ট চেঞ্জ হলে LocalStorage-এ সেভ করা
   useEffect(() => {
     localStorage.setItem("rootz_cart", JSON.stringify(cart));
   }, [cart]);
@@ -24,54 +38,64 @@ export function CartProvider({ children }) {
     localStorage.setItem("rootz_wishlist", JSON.stringify(wishlist));
   }, [wishlist]);
 
-  // Cart Actions
-  const addToCart = (product, quantity = 1, color = "", size = "") => {
+  // আইটেম এড করার সময় Number() নিশ্চিত করা (String Concatenation Bug Fix)
+  const addToCart = (product, quantity = 1) => {
+    const qtyToAdd = Number(quantity) || 1;
     setCart((prevCart) => {
-      const existingIndex = prevCart.findIndex(
-        (item) => item.product._id === product._id && item.color === color && item.size === size
-      );
-
-      if (existingIndex > -1) {
+      const existingItemIndex = prevCart.findIndex((item) => item._id === product._id);
+      
+      if (existingItemIndex > -1) {
         const updatedCart = [...prevCart];
-        updatedCart[existingIndex].quantity += quantity;
+        const currentQty = Number(updatedCart[existingItemIndex].quantity) || 1;
+        updatedCart[existingItemIndex].quantity = currentQty + qtyToAdd;
         return updatedCart;
+      } else {
+        return [...prevCart, { ...product, quantity: qtyToAdd }];
       }
-
-      return [...prevCart, { product, quantity, color, size }];
     });
   };
 
-  const removeFromCart = (index) => {
-    setCart((prevCart) => prevCart.filter((_, i) => i !== index));
+  // কার্ট থেকে হিজাব সরানো
+  const removeFromCart = (productId) => {
+    setCart((prevCart) => prevCart.filter((item) => item._id !== productId));
   };
 
-  const updateQuantity = (index, newQty) => {
-    if (newQty < 1) return;
-    setCart((prevCart) => {
-      const updated = [...prevCart];
-      updated[index].quantity = newQty;
-      return updated;
-    });
+  // পরিমাণ পরিবর্তন
+  const updateQuantity = (productId, newQty) => {
+    const qty = Number(newQty);
+    if (qty < 1) return;
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item._id === productId ? { ...item, quantity: qty } : item
+      )
+    );
   };
 
-  const clearCart = () => setCart([]);
+  // কার্ট ক্লিয়ার
+  const clearCart = () => {
+    setCart([]);
+  };
 
-  // Wishlist Actions
+  // মোট হিজাবের সংখ্যা সঠিকভাবে হিসাব
+  const cartCount = cart.reduce((total, item) => total + (Number(item.quantity) || 1), 0);
+
+  // মোট সাবটোটাল টাকা
+  const cartSubtotal = cart.reduce((total, item) => {
+    const price = Number(item.discountPrice) || Number(item.regularPrice) || 600;
+    return total + price * (Number(item.quantity) || 1);
+  }, 0);
+
+  const cartTotal = cartSubtotal;
+
   const toggleWishlist = (product) => {
     setWishlist((prev) => {
-      const exists = prev.some((p) => p._id === product._id);
+      const exists = prev.some((item) => item._id === product._id);
       if (exists) {
-        return prev.filter((p) => p._id !== product._id);
+        return prev.filter((item) => item._id !== product._id);
       }
       return [...prev, product];
     });
   };
-
-  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
-  const cartSubtotal = cart.reduce(
-    (total, item) => total + (item.product.discountPrice || item.product.regularPrice) * item.quantity,
-    0
-  );
 
   return (
     <CartContext.Provider
@@ -82,9 +106,10 @@ export function CartProvider({ children }) {
         removeFromCart,
         updateQuantity,
         clearCart,
-        toggleWishlist,
         cartCount,
+        cartTotal,
         cartSubtotal,
+        toggleWishlist,
       }}
     >
       {children}
