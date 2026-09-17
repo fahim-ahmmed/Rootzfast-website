@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
 import { 
@@ -10,14 +10,32 @@ import {
   RefreshCw, 
   ArrowRight, 
   ArrowUpRight, 
-  Star, 
-  CheckCircle2, 
-  Sparkles, 
-  HeartHandshake, 
-  Instagram 
+  Star 
 } from "lucide-react";
 
 export default function HomePage() {
+  const initialProducts = [
+    { _id: "1", name: "Everyday Hijab", image: "/1.jpg", regularPrice: 800, discountPrice: 600 },
+    { _id: "2", name: "Salat Hijab", image: "/2.jpg", regularPrice: 800, discountPrice: 600 },
+    { _id: "3", name: "Long Hijab", image: "/3.jpg", regularPrice: 800, discountPrice: 600 },
+    { _id: "4", name: "Regular Hijab", image: "/4.jpg", regularPrice: 800, discountPrice: 600 },
+    { _id: "5", name: "Premium Salat Hijab", image: "/5.jpg", regularPrice: 800, discountPrice: 600 },
+  ];
+
+  const [allProducts, setAllProducts] = useState(initialProducts);
+
+  // LocalStorage থেকে এডমিনের আপলোড করা নতুন হিজাবগুলো লোড করা
+  useEffect(() => {
+    try {
+      const customProducts = JSON.parse(localStorage.getItem("rootz_custom_products") || "[]");
+      if (customProducts.length > 0) {
+        setAllProducts([...customProducts, ...initialProducts]);
+      }
+    } catch (err) {
+      console.error("Error loading uploaded products:", err);
+    }
+  }, []);
+
   const categories = [
     { 
       title: "Everyday Hijabs", 
@@ -29,28 +47,20 @@ export default function HomePage() {
       title: "Salat Collection", 
       slug: "salat-hijab", 
       img: "/salathijab.jpg",
-      description: "নামাজের সময় পূর্ণ কভারেজের জন্য বিশেষ লং সালাত হিজাব।"
+      description: "নামাজের সময় পূর্ণ কভারেজের জন্য বিশেষ লং সালাত হিজাব।"
     },
     { 
       title: "Luxury Hijabs", 
       slug: "premium-silk", 
       img: "/3.jpg",
-      description: "বিশেষ অনুষ্ঠান ও স্টাইলিশ লুকের জন্য প্রিমিয়াম সাটিন ও সিল্ক।"
+      description: "বিশেষ অনুষ্ঠান ও স্টাইলিশ লুকের জন্য প্রিমিয়াম সাটিন ও সিল্ক।"
     },
   ];
 
-  const products = [
-    { _id: "1", name: "Everyday Hijab", image: "/1.jpg", regularPrice: 800, discountPrice: 600 },
-    { _id: "2", name: "Salat Hijab", image: "/2.jpg", regularPrice: 800, discountPrice: 600 },
-    { _id: "3", name: "Long Hijab", image: "/3.jpg", regularPrice: 800, discountPrice: 600 },
-    { _id: "4", name: "Regular Hijab", image: "/4.jpg", regularPrice: 800, discountPrice: 600 },
-    { _id: "5", name: "Premium Salat Hijab", image: "/5.jpg", regularPrice: 800, discountPrice: 600 },
-  ];
-
   return (
-    <div className="bg-[#FAF8F5] min-h-screen text-[#1E1E1E]">
+    <div className="bg-[#FBF9F5] min-h-screen text-[#1E1E1E]">
       
-      {/* 1. HERO SECTION */}
+      {/* HERO SECTION */}
       <section className="relative pt-8 pb-16 lg:pt-16 lg:pb-24 overflow-hidden border-b border-[#0E281D]/10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
@@ -65,7 +75,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-base sm:text-lg text-[#1E1E1E]/75 max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
-              ROOTZ-এর ১০০% অরিজিনাল, নন-স্লিপিং অর্গানিক কাপড়ের হিজাব কালেকশন। নামাজের কভারেজ থেকে দৈনন্দিন পর্দার জন্য সর্বোচ্চ আরামদায়ক ফেব্রিক।
+              ROOTZ-এর ১০০% অরিজিনাল, নন-স্লিপিং অর্গানিক কাপড়ের হিজাব কালেকশন। নামাজের কভারেজ থেকে দৈনন্দিন পর্দার জন্য সর্বোচ্চ আরামদায়ক ফেব্রিক।
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
@@ -106,9 +116,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      
-
-      {/* 3. CURATED CATEGORIES */}
+      {/* CURATED CATEGORIES */}
       <section className="py-16 max-w-7xl mx-auto px-6 lg:px-8 space-y-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
@@ -123,7 +131,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {categories.map((cat) => (
             <Link key={cat.slug} href={`/shop?category=${cat.slug}`}>
-              <div className="group relative h-[420px] rounded-[2rem] overflow-hidden bg-[#F7F4EE] border border-[#0E281D]/10 shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer">
+              <div className="group relative h-[420px] rounded-[2rem] overflow-hidden bg-white border border-[#0E281D]/10 shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer">
                 <img 
                   src={cat.img} 
                   alt={cat.title} 
@@ -148,18 +156,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. PRODUCTS DISPLAY */}
+      {/* PRODUCTS DISPLAY (সব নতুন ও পুরানো প্রোডাক্ট অটো দেখাবে) */}
       <section id="products-section" className="py-16 bg-white border-t border-[#0E281D]/10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-8">
           <div className="text-center max-w-lg mx-auto space-y-2">
             <span className="text-xs font-semibold text-[#C28E79] uppercase tracking-widest">BEST SELLERS</span>
-            <h2 className="text-3xl sm:text-4xl font-serif font-medium text-[#0E281D]">আমাদের জনপ্রিয় হিজাব সমূহ</h2>
+            <h2 className="text-3xl sm:text-4xl font-serif font-medium text-[#0E281D]">আমাদের জনপ্রিয় হিজাব সমূহ</h2>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 pt-4">
-            {products.map((product) => (
-              <Link key={product._id} href={`/product/${product._id}`} className="group block space-y-3">
-                <div className="w-full aspect-[3/4] bg-[#f5f5f5] overflow-hidden rounded-xl border border-gray-100 shadow-sm">
+            {allProducts.map((product) => (
+              <Link key={product._id} href={`/product/${product._id}`} className="group block space-y-3 bg-[#FBF9F5] p-3 rounded-2xl border border-gray-100 hover:shadow-xl transition-all duration-300">
+                <div className="w-full aspect-[3/4] bg-white overflow-hidden rounded-xl border border-gray-100 shadow-sm">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -182,8 +190,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* NEW PRO SECTION 1: CUSTOMER REVIEWS (ট্রাস্ট বিল্ডিং সেকশন) */}
-      <section className="py-20 bg-[#F7F4EE] border-t border-[#0E281D]/10">
+      {/* CUSTOMER REVIEWS */}
+      <section className="py-20 bg-[#F3EEE6] border-t border-[#0E281D]/10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-12 text-center">
           <div className="space-y-2">
             <span className="text-xs font-semibold text-[#C28E79] uppercase tracking-widest">গ্রাহক মতামত</span>
@@ -192,11 +200,11 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
             {[
-              { name: "সাদিয়া খাতুন", city: "ঢাকা", text: "সালাত হিজাবের কাপড় অত্যন্ত সফট ও বড়। নামাজের সময় চুল পড়ে যাওয়ার কোনো ভয় থাকে না। মাশাল্লাহ কোয়ালিটি খুব ভালো!" },
-              { name: "জান্নাতুল  আক্তার ইমা", city: "চট্টগ্রাম", text: "ডেলিভারি খুব দ্রুত পেয়েছি। কাপড়ের কালার একদম ছবির মতোই সুন্দর আর সারাদিন পরলেও গরম লাগে না।" },
+              { name: "সাদিয়া খাতুন", city: "ঢাকা", text: "সালাত হিজাবের কাপড় অত্যন্ত সফট ও বড়। নামাজের সময় চুল পড়ে যাওয়ার কোনো ভয় থাকে না। মাশাল্লাহ কোয়ালিটি খুব ভালো!" },
+              { name: "জান্নাতুল আক্তার ইমা", city: "চট্টগ্রাম", text: "ডেলিভারি খুব দ্রুত পেয়েছি। কাপড়ের কালার একদম ছবির মতোই সুন্দর আর সারাদিন পরলেও গরম লাগে না।" },
               { name: "মুক্তি খাতুন", city: "সিলেট", text: "প্যাকিং খুব প্রিমিয়াম ছিল। হিজাবগুলো একদম পিছলে যায় না, পিন ছাড়াই সুন্দর সেটিং হয়ে থাকে। highly recommended!" },
             ].map((rev, i) => (
-              <div key={i} className="bg-[#FAF8F5] p-8 rounded-[1.5rem] border border-[#0E281D]/10 space-y-4 shadow-sm hover:shadow-md transition-shadow">
+              <div key={i} className="bg-white p-8 rounded-[1.5rem] border border-[#0E281D]/10 space-y-4 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex text-[#C28E79] gap-1">
                   {[...Array(5)].map((_, idx) => (
                     <Star key={idx} size={16} fill="currentColor" />
@@ -212,17 +220,17 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      {/* 2. PRO VALUE PROPOSITION BAR */}
-      <section className="py-16 bg-[#F7F4EE] border-b border-[#0E281D]/10 relative overflow-hidden">
+
+      {/* PRO VALUE PROPOSITION BAR */}
+      <section className="py-16 bg-[#F3EEE6] border-y border-[#0E281D]/10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          
           <div className="text-center max-w-lg mx-auto mb-12 space-y-2">
             <span className="text-xs font-semibold text-[#C28E79] uppercase tracking-widest">কেন ROOTZ বেছে নেবেন?</span>
             <h2 className="text-3xl sm:text-4xl font-serif font-medium text-[#0E281D]">আমাদের সেরা সেবাসমূহ</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="group bg-[#FAF8F5] p-8 rounded-3xl border border-[#0E281D]/10 hover:border-[#C28E79] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 space-y-4">
+            <div className="group bg-white p-8 rounded-3xl border border-[#0E281D]/10 hover:border-[#C28E79] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 space-y-4">
               <div className="w-14 h-14 rounded-2xl bg-[#0E281D] text-[#FAF8F5] flex items-center justify-center shadow-md group-hover:scale-110 group-hover:bg-[#C28E79] transition-all duration-300">
                 <Truck size={28} />
               </div>
@@ -234,68 +242,99 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="group bg-[#FAF8F5] p-8 rounded-3xl border border-[#0E281D]/10 hover:border-[#C28E79] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 space-y-4">
+            <div className="group bg-white p-8 rounded-3xl border border-[#0E281D]/10 hover:border-[#C28E79] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 space-y-4">
               <div className="w-14 h-14 rounded-2xl bg-[#0E281D] text-[#FAF8F5] flex items-center justify-center shadow-md group-hover:scale-110 group-hover:bg-[#C28E79] transition-all duration-300">
                 <ShieldCheck size={28} />
               </div>
               <div className="space-y-1">
-                <h4 className="font-serif font-bold text-[#0E281D] text-lg">১০০% প্রিমিয়াম ফেব্রিক</h4>
+                <h4 className="font-serif font-bold text-[#0E281D] text-lg">১০০% প্রিমিয়াম ফেব্রিক</h4>
                 <p className="text-xs text-[#1E1E1E]/70 leading-relaxed">
-                  সফট সুতি ও নন-স্লিপিং কাপড়ের নিশ্চয়তা যা পরিধানে অত্যন্ত আরামদায়ক।
+                  সফট সুতি ও নন-স্লিপিং কাপড়ের নিশ্চয়তা যা পরিধানে অত্যন্ত আরামদায়ক।
                 </p>
               </div>
             </div>
 
-            <div className="group bg-[#FAF8F5] p-8 rounded-3xl border border-[#0E281D]/10 hover:border-[#C28E79] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 space-y-4">
+            <div className="group bg-white p-8 rounded-3xl border border-[#0E281D]/10 hover:border-[#C28E79] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 space-y-4">
               <div className="w-14 h-14 rounded-2xl bg-[#0E281D] text-[#FAF8F5] flex items-center justify-center shadow-md group-hover:scale-110 group-hover:bg-[#C28E79] transition-all duration-300">
                 <Feather size={28} />
               </div>
               <div className="space-y-1">
                 <h4 className="font-serif font-bold text-[#0E281D] text-lg">অত্যন্ত হালকা অনুভূতি</h4>
                 <p className="text-xs text-[#1E1E1E]/70 leading-relaxed">
-                  দীর্ঘসময় ব্যবহারে কোনো মাথাব্যথা বা পিনের ঝামেলা ছাড়াই সহজে ফিট থাকবে।
+                  দীর্ঘসময় ব্যবহারে কোনো মাথাব্যথা বা পিনের ঝামেলা ছাড়াই সহজে ফিট থাকবে।
                 </p>
               </div>
             </div>
 
-            <div className="group bg-[#FAF8F5] p-8 rounded-3xl border border-[#0E281D]/10 hover:border-[#C28E79] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 space-y-4">
+            <div className="group bg-white p-8 rounded-3xl border border-[#0E281D]/10 hover:border-[#C28E79] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 space-y-4">
               <div className="w-14 h-14 rounded-2xl bg-[#0E281D] text-[#FAF8F5] flex items-center justify-center shadow-md group-hover:scale-110 group-hover:bg-[#C28E79] transition-all duration-300">
                 <RefreshCw size={28} />
               </div>
               <div className="space-y-1">
                 <h4 className="font-serif font-bold text-[#0E281D] text-lg">৭ দিনের এক্সচেঞ্জ</h4>
                 <p className="text-xs text-[#1E1E1E]/70 leading-relaxed">
-                  পছন্দ অনুযায়ী সাইজ বা কালার পরিবর্তনের জন্য ৭ দিনের সহজ এক্সচেঞ্জ সুবিধা।
+                  পছন্দ অনুযায়ী সাইজ বা কালার পরিবর্তনের জন্য ৭ দিনের সহজ এক্সচেঞ্জ সুবিধা।
                 </p>
               </div>
             </div>
           </div>
-
         </div>
       </section>
 
-      {/* NEW PRO SECTION 2: HIJAB CARE & STYLING TIPS (প্রফেশনাল গাইড কার্ডস) */}
-      <section className="py-20 max-w-7xl mx-auto px-6 lg:px-8 space-y-10">
-        <div className="text-center space-y-2">
-          <span className="text-xs font-semibold text-[#C28E79] uppercase tracking-widest">হিজাব যত্ন ও টিপস</span>
-          <h2 className="text-3xl sm:text-4xl font-serif font-medium text-[#0E281D]">দীর্ঘদিন হিজাব নতুন রাখার নিয়ম</h2>
-        </div>
+      {/* HIJAB CARE & STYLING TIPS */}
+      {/* HIJAB CARE & STYLING TIPS (CLEAN MINIMAL CARD DESIGN - NO IMAGES) */}
+      <section className="py-20 bg-[#FAF8F5] border-t border-[#0E281D]/10">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-12">
+          
+          {/* Header */}
+          <div className="text-center space-y-3 max-w-xl mx-auto">
+            <span className="text-xs font-bold text-[#C28E79] uppercase tracking-[0.2em] bg-[#0E281D]/5 px-4 py-1.5 rounded-full border border-[#0E281D]/10">
+              ফ্যাব্রিক কেয়ার গাইড
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-serif font-medium text-[#0E281D] leading-tight">
+              দীর্ঘদিন হিজাব নতুন রাখার নিয়ম
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 font-light leading-relaxed">
+              আপনার প্রিয় ROOTZ হিজাবের সফটনেস, আসল উজ্জ্বলতা এবং স্থায়িত্ব বছরের পর বছর বজায় রাখার সহজ উপায়।
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 space-y-3">
-            <div className="w-12 h-12 rounded-xl bg-[#0E281D]/5 text-[#0E281D] flex items-center justify-center font-bold">01</div>
-            <h4 className="font-bold text-[#0E281D] text-sm">হালকা সাবানে ধোয়া</h4>
-            <p className="text-xs text-gray-600 leading-relaxed">অর্গানিক বা সুতি হিজাব দীর্ঘদিন কালার উজ্জ্বল রাখতে শ্যাম্পু বা ওয়াশিং লিকুইড দিয়ে ওয়াশ করুন।</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 space-y-3">
-            <div className="w-12 h-12 rounded-xl bg-[#0E281D]/5 text-[#0E281D] flex items-center justify-center font-bold">02</div>
-            <h4 className="font-bold text-[#0E281D] text-sm">ছায়ায় শুকানো</h4>
-            <p className="text-xs text-gray-600 leading-relaxed">সরাসরি কড়া রোদে না দিয়ে হালকা ছায়াযুক্ত স্থানে শুকালে কাপড়ের সফটনেস দীর্ঘদিন বজায় থাকে।</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 space-y-3">
-            <div className="w-12 h-12 rounded-xl bg-[#0E281D]/5 text-[#0E281D] flex items-center justify-center font-bold">03</div>
-            <h4 className="font-bold text-[#0E281D] text-sm">হালকা আয়রন</h4>
-            <p className="text-xs text-gray-600 leading-relaxed">ব্যবহারের পূর্বে হালকা হিটে ইস্ত্রি করে নিলে হিজাবের ফ্লো এবং ফিটিং অনেক বেশি আকর্ষণীয় দেখায়।</p>
+          {/* Clean Text Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            {/* Card 1 */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-200/80 space-y-4 shadow-sm hover:shadow-xl hover:border-[#C28E79]/40 hover:-translate-y-1 transition-all duration-300 text-left">
+              <div className="w-12 h-12 rounded-2xl bg-[#0E281D]/5 text-[#0E281D] font-serif font-bold text-lg flex items-center justify-center border border-[#0E281D]/10">
+                01
+              </div>
+              <h4 className="font-serif font-bold text-[#0E281D] text-xl">হালকা সাবানে ধোয়া</h4>
+              <p className="text-xs text-gray-600 leading-relaxed font-light">
+                অর্গানিক বা সুতি হিজাব দীর্ঘদিন কালার উজ্জ্বল রাখতে শ্যাম্পু বা ওয়াশিং লিকুইড দিয়ে ওয়াশ করুন।
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-200/80 space-y-4 shadow-sm hover:shadow-xl hover:border-[#C28E79]/40 hover:-translate-y-1 transition-all duration-300 text-left">
+              <div className="w-12 h-12 rounded-2xl bg-[#0E281D]/5 text-[#0E281D] font-serif font-bold text-lg flex items-center justify-center border border-[#0E281D]/10">
+                02
+              </div>
+              <h4 className="font-serif font-bold text-[#0E281D] text-xl">ছায়ায় শুকানো</h4>
+              <p className="text-xs text-gray-600 leading-relaxed font-light">
+                সরাসরি কড়া রোদে না দিয়ে হালকা ছায়াযুক্ত স্থানে শুকাতে দিন। এতে কাপড়ের কালার নতুনের মতো উজ্জ্বল থাকবে।
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-white p-8 rounded-3xl border border-gray-200/80 space-y-4 shadow-sm hover:shadow-xl hover:border-[#C28E79]/40 hover:-translate-y-1 transition-all duration-300 text-left">
+              <div className="w-12 h-12 rounded-2xl bg-[#0E281D]/5 text-[#0E281D] font-serif font-bold text-lg flex items-center justify-center border border-[#0E281D]/10">
+                03
+              </div>
+              <h4 className="font-serif font-bold text-[#0E281D] text-xl">হালকা আয়রন</h4>
+              <p className="text-xs text-gray-600 leading-relaxed font-light">
+                ব্যবহারের পূর্বে হালকা হিটে ইস্ত্রি করে নিলে হিজাবের ফ্লো এবং ফিটিং অনেক বেশি আকর্ষনীয় দেখায়।
+              </p>
+            </div>
+
           </div>
         </div>
       </section>

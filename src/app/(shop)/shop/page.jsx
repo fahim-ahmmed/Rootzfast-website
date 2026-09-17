@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input, Button, Spinner } from "@heroui/react";
 import { Search } from "lucide-react";
 
-// Local Products Data (1.jpg to 5.jpg)
+// Initial Static Products
 const initialProducts = [
-  { _id: "1", name: "Surjomuki Hijab", image: "/1.jpg", category: "everyday-hijab", regularPrice: 800, discountPrice: 600 },
-  { _id: "2", name: "Shoronolata Hijab", image: "/2.jpg", category: "everyday-hijab", regularPrice: 800, discountPrice: 600 },
-  { _id: "3", name: "Tarcel Hijab", image: "/3.jpg", category: "salat-hijab", regularPrice: 800, discountPrice: 600 },
-  { _id: "4", name: "Butterfly Hijab", image: "/4.jpg", category: "premium-silk", regularPrice: 800, discountPrice: 600 },
+  { _id: "1", name: "Everyday Hijab", image: "/1.jpg", category: "everyday-hijab", regularPrice: 800, discountPrice: 600 },
+  { _id: "2", name: "Salat Hijab", image: "/2.jpg", category: "everyday-hijab", regularPrice: 800, discountPrice: 600 },
+  { _id: "3", name: "Long Hijab", image: "/3.jpg", category: "salat-hijab", regularPrice: 800, discountPrice: 600 },
+  { _id: "4", name: " Regular Hijab", image: "/4.jpg", category: "premium-silk", regularPrice: 800, discountPrice: 600 },
   { _id: "5", name: "Premium Salat Hijab", image: "/5.jpg", category: "salat-hijab", regularPrice: 800, discountPrice: 600 },
 ];
 
@@ -21,6 +21,19 @@ function ShopFilterWrapper() {
   
   const activeCategory = searchParams.get("category") || "all";
   const [searchQuery, setSearchQuery] = useState("");
+  const [allProducts, setAllProducts] = useState(initialProducts);
+
+  // Load Admin Custom Uploaded Products from LocalStorage
+  useEffect(() => {
+    try {
+      const customProducts = JSON.parse(localStorage.getItem("rootz_custom_products") || "[]");
+      if (customProducts.length > 0) {
+        setAllProducts([...customProducts, ...initialProducts]);
+      }
+    } catch (err) {
+      console.error("Error loading products:", err);
+    }
+  }, []);
 
   const categories = [
     { label: "ALL", value: "all" },
@@ -30,12 +43,12 @@ function ShopFilterWrapper() {
   ];
 
   const filteredProducts = useMemo(() => {
-    return initialProducts.filter((product) => {
+    return allProducts.filter((product) => {
       const matchCategory = activeCategory === "all" || product.category === activeCategory;
       const matchSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
       return matchCategory && matchSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [allProducts, activeCategory, searchQuery]);
 
   const handleCategoryChange = (val) => {
     if (val === "all") {
@@ -51,7 +64,7 @@ function ShopFilterWrapper() {
       {/* Sidebar Filters */}
       <div className="lg:col-span-3 bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6 h-fit">
         <div className="font-bold text-sm text-[#0E281D] border-b pb-2 uppercase tracking-wider">
-          Filters
+          FILTERS
         </div>
 
         <div className="space-y-2">
